@@ -62,7 +62,6 @@ bool Fm24cxxb::readString(uint16_t memAddress, String &out, size_t maxLen) {
   }
   return true; 
 }
-================================
 
 bool Fm24cxxb::writeBuffer(uint16_t memAddress, const uint8_t* buf, size_t len) {
   if (!_wire) return false;
