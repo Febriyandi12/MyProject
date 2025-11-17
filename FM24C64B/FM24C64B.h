@@ -20,10 +20,6 @@ public:
   bool writeBuffer(uint16_t memAddress, const uint8_t* buf, size_t len);
   bool readBuffer(uint16_t memAddress, uint8_t* buf, size_t len);
 
-  // ==========================================================
-  // --- FUNGSI HELPER BARU (Tambahkan ini) ---
-  // ==========================================================
-  
   /**
    * @brief Menulis tipe data apa pun (float, int, long, struct) ke FRAM.
    * @tparam T Tipe data (akan dideteksi otomatis)

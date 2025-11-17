@@ -1,66 +1,66 @@
+/*
+ * Program Dummy: Tes Tulis/Baca SEMUA Tipe Data
+ * Menggunakan library FM24C64B yang sudah ada.
+ */
+
 #include "FM24C64B.h"
 #include <Wire.h>
 
 // --- KONFIGURASI ---
-// Ganti pin ini jika Anda menggunakan ESP32
 #define I2C_SDA_PIN 21
 #define I2C_SCL_PIN 22
 #define I2C_FREQ 400000
 
-// Buat objek FRAM
 FM24C64B fram;
 
-// Definisikan alamat
-#define ADDR_FLOAT  100
-#define ADDR_LONG   110
-#define ADDR_STRING 120
-#define ADDR_STRUCT 200
-
-// Kita bahkan bisa menyimpan/membaca struct!
-struct MyConfig {
-  int deviceID;
-  float calibration;
-  char name[20];
-};
+// --- Alamat Memori ---
+#define ADDR_STRING 10   // Ukuran 4 byte
+#define ADDR_CHAR   100  // Ukuran 1 byte
+#define ADDR_BYTE   102  // Ukuran 1 byte
+#define ADDR_INT    104  // Ukuran 4 byte 
+#define ADDR_UINT   110  // Ukuran 4 byte
+#define ADDR_LONG   116  // Ukuran 4 byte
+#define ADDR_ULONG  122  // Ukuran 4 byte
+#define ADDR_FLOAT  128  // Ukuran 4 byte
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("\n--- Tes Baca/Tulis Semua Tipe Data ---");
+  Serial.println("\n--- Tes Tulis/Baca Semua Tipe Data ---");
 
-  // Inisialisasi Wire untuk ESP32
+  // Inisialisasi Wire dan Library
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-  
-  // Mulai library (begin() sekarang mengambil objek Wire)
-  fram.begin(0x50, Wire); 
-  
-  fram.setClock(I2C_FREQ);
+  fram.begin(0x50, Wire); //
+  fram.setClock(I2C_FREQ); //
 
   // ===================================
   // --- FASE TULIS ---
   // ===================================
-  Serial.println("Menulis data ke FRAM...");
+  Serial.println("Menulis semua tipe data ke FRAM...");
 
-  // 1. Tulis FLOAT
-  float f_tulis = -123.456f;
-  Serial.printf("Menulis float: %f\n", f_tulis);
-  fram.writeObject(ADDR_FLOAT, f_tulis);
+  char c_tulis = 'C';
+  fram.writeByte(ADDR_CHAR, c_tulis); //
 
-  // 2. Tulis UNSIGNED LONG
-  unsigned long l_tulis = 987654321UL;
-  Serial.printf("Menulis long: %lu\n", l_tulis);
-  fram.writeObject(ADDR_LONG, l_tulis);
-
-  // 3. Tulis STRING
-  String s_tulis = "Halo dari ESP32!";
-  Serial.printf("Menulis string: \"%s\"\n", s_tulis.c_str());
+  String s_tulis = "Saya Melakukan untuk baca tulis dengan INi";
   fram.writeString(ADDR_STRING, s_tulis);
 
-  // 4. Tulis STRUCT
-  MyConfig cfg_tulis = { 101, 1.23, "Sensor_A" };
-  Serial.printf("Menulis struct: ID=%d, Cal=%.2f, Name=%s\n", 
-                cfg_tulis.deviceID, cfg_tulis.calibration, cfg_tulis.name);
-  fram.writeObject(ADDR_STRUCT, cfg_tulis);
+  byte b_tulis = 0xDE;
+  fram.writeByte(ADDR_BYTE, b_tulis); //
+
+  int i_tulis = -32000;
+  fram.writeObject(ADDR_INT, i_tulis); //
+
+  unsigned int ui_tulis = 65000;
+  fram.writeObject(ADDR_UINT, ui_tulis); //
+
+  long l_tulis = -123456789;
+  fram.writeObject(ADDR_LONG, l_tulis); //
+
+  unsigned long ul_tulis = 3210987654;
+  fram.writeObject(ADDR_ULONG, ul_tulis); //
+
+  float f_tulis = 3.14159;
+  fram.writeObject(ADDR_FLOAT, f_tulis); //
 
   Serial.println("...Penulisan selesai.");
   Serial.println("-------------------------------------");
@@ -70,40 +70,50 @@ void setup() {
   // ===================================
   Serial.println("Membaca data kembali dari FRAM...");
 
-  // 1. Baca FLOAT
-  float f_baca = 0;
-  fram.readObject(ADDR_FLOAT, f_baca);
-  Serial.printf("Float dibaca: %f\n", f_baca);
+  uint8_t c_baca = 0;
+  fram.readByte(ADDR_CHAR, c_baca); //
+  Serial.printf("CHAR:   Ditulis: %c, Dibaca: %c\n", c_tulis, c_baca);
 
-  // 2. Baca UNSIGNED LONG
-  unsigned long l_baca = 0;
-  fram.readObject(ADDR_LONG, l_baca);
-  Serial.printf("Long dibaca: %lu\n", l_baca);
-
-  // 3. Baca STRING
   String s_baca = "";
-  fram.readString(ADDR_STRING, s_baca, 50); // 50 adalah batas aman
-  Serial.printf("String dibaca: \"%s\"\n", s_baca.c_str());
+  fram.readString(ADDR_STRING, s_baca);
+  Serial.printf("String:   Ditulis: %s, Dibaca: %s\n", s_tulis.c_str(), s_baca.c_str());
 
-  // 4. Baca STRUCT
-  MyConfig cfg_baca;
-  fram.readObject(ADDR_STRUCT, cfg_baca);
-  Serial.printf("Struct dibaca: ID=%d, Cal=%.2f, Name=%s\n", 
-                cfg_baca.deviceID, cfg_baca.calibration, cfg_baca.name);
+  byte b_baca = 0;
+  fram.readByte(ADDR_BYTE, b_baca); //
+  Serial.printf("BYTE:   Ditulis: 0x%X, Dibaca: 0x%X\n", b_tulis, b_baca);
+
+  int i_baca = 0;
+  fram.readObject(ADDR_INT, i_baca); //
+  Serial.printf("INT:    Ditulis: %d, Dibaca: %d\n", i_tulis, i_baca);
+
+  unsigned int ui_baca = 0;
+  fram.readObject(ADDR_UINT, ui_baca); //
+  Serial.printf("UINT:   Ditulis: %u, Dibaca: %u\n", ui_tulis, ui_baca);
+
+  long l_baca = 0;
+  fram.readObject(ADDR_LONG, l_baca); //
+  Serial.printf("LONG:   Ditulis: %ld, Dibaca: %ld\n", l_tulis, l_baca);
+
+  unsigned long ul_baca = 0;
+  fram.readObject(ADDR_ULONG, ul_baca); //
+  Serial.printf("ULONG:  Ditulis: %lu, Dibaca: %lu\n", ul_tulis, ul_baca);
+
+  float f_baca = 0;
+  fram.readObject(ADDR_FLOAT, f_baca); //
+  Serial.printf("FLOAT:  Ditulis: %f, Dibaca: %f\n", f_tulis, f_baca);
 
   // ===================================
   // --- VERIFIKASI ---
   // ===================================
   Serial.println("-------------------------------------");
-  if (f_tulis == f_baca && 
-      l_tulis == l_baca && 
-      s_tulis == s_baca && 
-      cfg_tulis.deviceID == cfg_baca.deviceID &&
-      strcmp(cfg_tulis.name, cfg_baca.name) == 0) 
-  {
-    Serial.println("VERIFIKASI SUKSES! Semua data cocok.");
+  
+  // <-- KESALAHAN 3: Tambahkan pengecekan string (s_tulis == s_baca)
+  if (c_tulis == c_baca && s_tulis == s_baca && b_tulis == b_baca && 
+      i_tulis == i_baca && ui_tulis == ui_baca && l_tulis == l_baca && 
+      ul_tulis == ul_baca && f_tulis == f_baca) { // <-- DIPERBAIKI
+    Serial.println("✅ VERIFIKASI SUKSES! Semua data cocok.");
   } else {
-    Serial.println("VERIFIKASI GAGAL! Data tidak cocok.");
+    Serial.println("❌ VERIFIKASI GAGAL! Data tidak cocok.");
   }
 }
 
